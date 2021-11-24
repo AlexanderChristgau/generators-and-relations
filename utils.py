@@ -30,6 +30,10 @@ def partialterm(l,i,b):
 
 
 def accel_asc(n):
+    '''
+    Outputs a generator of all partitions of norm n.
+    See also https://arxiv.org/abs/0909.2331
+    '''
     a = [0 for i in range(n + 1)]
     k = 1
     y = n - 1

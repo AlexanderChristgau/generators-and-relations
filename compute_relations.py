@@ -50,9 +50,14 @@ def relations(d,sorted_monoms,use_cycles = True,n_max=None):
 
 
 
-def relations_to_latex(rel,names,n,add_commas=False):
+def relations_to_latex(rel,names,n,add_commas=False,add_norm=False):
+    '''
+    Takes a relation and formats it into a list of strings,
+    which can be copypasted directly into Latex for easier visualization.
+    '''
     lines = []
-    lines.append("Norm "+str(n+2))
+    if add_norm:
+        lines.append("Norm "+str(n+2))
     lines.append(r"\[ \begin{bmatrix}")
     s = ""
     for x in names:
@@ -83,38 +88,7 @@ def write_relations_to_file(d,sorted_monoms, use_cycles = False, n_max=None, add
             lines.append(r"\]")
     return lines
 
-
-
-def compute_minimal_relations(d,sorted_monoms,extra_relations=True,
-                                use_cycles=True,return_relations=False):
-    
-    n_max = 3*d//2 if extra_relations else d+1
-    sufficient_relations = relations(d,sorted_monoms,use_cycles,n_max)[(d-1)//2:]
-    
-    name_tables = []
-    lifted_relations = []
-    for names,A in sufficient_relations:
-        #sp.pprint(A)
-        name_tables.append({name:i for i,name in enumerate(names)})
-        lifted_relations.append(sp.Matrix(len(names),0,[]))
-    
-    for i,char in enumerate(alphabet):
-        for j, (names_lower, rels) in enumerate(sufficient_relations):
-            if i+j+1 < len(sufficient_relations):
-                names_higher = name_tables[i+j+1]
-                conversion_matrix = sp.zeros(len(names_higher),len(names_lower))
-
-                for x,name in enumerate(names_lower):
-                    new_name = "".join(sorted(name+char))
-                    if new_name in names_higher:
-                        conversion_matrix[names_higher[new_name],x] = 1
-                
-                rels_lifted = []
-                for rel in rels:
-                    rels_lifted.append(conversion_matrix*rel)
-
-                lifted_relations[i+j+1] = lifted_relations[i+j+1].row_join(sp.Matrix([rels_lifted]))
-    
+  
 def compute_minimal_relations(d,sorted_monoms,extra_relations=True,use_cycles=True,return_relations=False):
     n_max = 3*d//2 if extra_relations else d+1
     sufficient_relations = relations(d,sorted_monoms,use_cycles,n_max)[(d-1)//2:]
@@ -122,7 +96,6 @@ def compute_minimal_relations(d,sorted_monoms,extra_relations=True,use_cycles=Tr
     name_tables = []
     lifted_relations = []
     for names,A in sufficient_relations:
-        #sp.pprint(A)
         name_tables.append({name:i for i,name in enumerate(names)})
         lifted_relations.append(sp.Matrix(len(names),0,[]))
     
@@ -146,7 +119,6 @@ def compute_minimal_relations(d,sorted_monoms,extra_relations=True,use_cycles=Tr
     L = []
     for (names,A),(n,B) in zip(sufficient_relations,enumerate(lifted_relations)):
         if return_relations:
-            
             if B.shape[1]>0:
                 AB = sp.Matrix(sp.BlockMatrix((B,sp.BlockMatrix(A))))
                 pivots = AB.rref()[1]
