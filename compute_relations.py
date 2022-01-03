@@ -130,3 +130,17 @@ def compute_minimal_relations(d,sorted_monoms,extra_relations=True,use_cycles=Tr
             L.append(len(A)-B.rank())
 
     return L
+
+
+if __name__ == '__main__':
+    from tqdm import tqdm
+
+    with open('monomials_cylces.pkl', 'rb') as f:
+        sorted_monomials = pickle.load(f)
+    
+    with open('minimal_relations.txt','w') as f:
+        for d in tqdm(range(4,11)):
+            f.write(r'\section*{' + 'A({})'.format(d)+r'}'+'\n')
+            min_rels = compute_minimal_relations(d,sorted_monomials,return_relations=True,extra_relations=False)
+            for line in min_rels:
+                f.write(line+'\n')
