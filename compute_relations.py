@@ -1,5 +1,9 @@
+from os import stat_result
 from recursion_formula import *
 import sympy as sp
+import argparse
+
+
 
 # Define a function which eliminates elements with too large support and finds relations
 def relations(d,sorted_monoms,use_cycles = True,n_max=None):
@@ -133,14 +137,30 @@ def compute_minimal_relations(d,sorted_monoms,extra_relations=True,use_cycles=Tr
 
 
 if __name__ == '__main__':
-    from tqdm import tqdm
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--max_dimension', type=int, default=10, help='dimension')
+    parser.add_argument('--load_path', type=str, default='./monomials/monomials.pkl')
+    parser.add_argument('--save_path', type=str, default='./minimal_relations/minimal_relations.txt')
+    parser.add_argument('--print_times', type=bool, default=False)
 
-    with open('monomials_cylces.pkl', 'rb') as f:
+    hparams = parser.parse_args()
+
+    from tqdm import tqdm
+    if hparams.print_times:
+        from time import time
+
+    with open(hparams.load_path, 'rb') as f:
         sorted_monomials = pickle.load(f)
     
-    with open('minimal_relations.txt','w') as f:
-        for d in tqdm(range(4,11)):
+    with open(hparams.save_path,'w') as f:
+        for d in tqdm(range(4,hparams.max_dimension+1)):
             f.write(r'\section*{' + 'A({})'.format(d)+r'}'+'\n')
-            min_rels = compute_minimal_relations(d,sorted_monomials,return_relations=True,extra_relations=False)
+            if hparams.print_times:
+                start = time()
+                min_rels = compute_minimal_relations(d,sorted_monomials,return_relations=True,extra_relations=False)
+                end = time()
+                print(end - start)
+            else:
+                min_rels = compute_minimal_relations(d,sorted_monomials,return_relations=True,extra_relations=False)
             for line in min_rels:
                 f.write(line+'\n')

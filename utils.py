@@ -1,10 +1,8 @@
 import numpy as np
-from math import factorial as fact
-
 
 alphabet = "abcdefghijklmnopq" 
 
-
+#Define norm, cardinality and magnitude of a tuple
 def norm(a):
     return ((1+np.arange(len(a)))*a).sum()
 
@@ -16,11 +14,11 @@ def magn(a):
 
 
 
+#Define the partial opeartor used in the recursion formula
 def partial(i,a):
     if i==2:
         return a - np.eye(1,len(a),0,dtype=int)[0]
     return a + np.eye(1,len(a),i-3,dtype=int)[0] - np.eye(1,len(a),i-2,dtype=int)[0]
-
 
 
 def partialterm(l,i,b):
@@ -29,6 +27,7 @@ def partialterm(l,i,b):
     return b[i-3]+1
 
 
+#Define functions for generating all cycle types
 def accel_asc(n):
     '''
     Outputs a generator of all partitions of norm n.
@@ -63,13 +62,12 @@ def to_ctype(l):
     return tuple(answer)
 
 
-
 def generate_cycletypes(d):
     return (to_ctype(partition) for partition in accel_asc(d))
 
 
 
-# Turns monomial "aa" into "a^2" etc.
+# Format monomial "aa" into "a^2" etc.
 def format_monomname(string):
     counts = {c:0 for c in alphabet}
     for char in string:
@@ -85,9 +83,6 @@ def format_monomname(string):
 
 
 # Computes norm from label in order to sort monomials
+D1 = {c:(i+1) for i,c in enumerate(alphabet)}
 def get_norm(monomname):
-    answer = 0
-    D = {c:(i+1) for i,c in enumerate(alphabet)}
-    for char in monomname:
-        answer += D[char]
-    return answer
+    return sum(D1[char] for char in monomname)

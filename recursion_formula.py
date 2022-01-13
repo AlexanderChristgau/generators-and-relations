@@ -5,14 +5,18 @@ from itertools import product
 from tqdm import tqdm
 import pickle
 from utils import * #Contains relevant functions for A(d) such as norm and cardinality
+import argparse #For parsing dimension and filename to script.
+
 
 arr = np.array
+memoization_size = 10**8
+
 
 '''
 This script contains a series of functions used for computing monomials of generators in terms of basis elements in the algebra A(d).
 '''
 
-@lru_cache(maxsize=1000000) # use memoization since small values will be called repeatedly.
+@lru_cache(maxsize=memoization_size) # use memoization since small values will be called repeatedly.
 def Lambda(l: int,a: tuple,b: tuple):
     '''
     Computes normalized coefficient of l-cycle in the product a*b based on recursion.
@@ -69,7 +73,7 @@ def gen_cdecomp(a: tuple,c: tuple):
 
 
 
-@lru_cache(maxsize=1000000)
+@lru_cache(maxsize=memoization_size)
 def Lambda2(c,a,b):
     '''
     Computes coefficient of $[c]$ in product $[a]\cdot [b]$
@@ -121,7 +125,8 @@ def multiply_generator(generator: tuple, g: dict, d: int=100):
     return product
 
 
-def generate_monomials(d=12,use_cycles=False, max_norm=100):
+
+def generate_monomials(d=15,use_cycles=True):
     # Whether to use cycle generators or transpositions as generators.
     if use_cycles:
         generators = [(c,(0,)*i + (1,)) for i,c in enumerate(alphabet[0:d//2])] #cycle generators
@@ -135,7 +140,7 @@ def generate_monomials(d=12,use_cycles=False, max_norm=100):
     # Repeatedly multiply each generator on list of monomials and add to list of monomials
     for name1, generator in tqdm(generators):
         for name2,g in monomials:
-            if norm(list(g.keys())[0]) + norm(generator) <= min(d,max_norm):
+            if magn(list(g.keys())[0]) + magn(generator) <= d:
                 newname = "".join(sorted(name1+name2))
                 if newname not in uniquenames:
                     uniquenames.add(newname)
@@ -145,8 +150,10 @@ def generate_monomials(d=12,use_cycles=False, max_norm=100):
 
     return monomials
 
-def generate_monomials_sorted(d=12,use_cycles=False,max_norm=100):
-    monomials = generate_monomials(d,use_cycles,max_norm)
+
+
+def generate_monomials_sorted(d=12,use_cycles=True):
+    monomials = generate_monomials(d,use_cycles)
     sorted_monoms = {i:[] for i in range(1,len(monomials)+1)}
     for name, dic in monomials:
         n = get_norm(name)
@@ -154,7 +161,13 @@ def generate_monomials_sorted(d=12,use_cycles=False,max_norm=100):
     return sorted_monoms
 
 
+
 if __name__ == "__main__":
-    monomials = generate_monomials_sorted(d = 30, use_cycles=True, max_norm=16)
-    with open('monomials_cylces.pkl', 'wb') as file:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dimension', type=int, default=20, help='dimension')
+    parser.add_argument('--save_path', type=str, default='./monomials/monomials.pkl')
+    hparams = parser.parse_args()
+
+    monomials = generate_monomials_sorted(d = hparams.dimension)
+    with open(hparams.save_path, 'wb') as file:
         pickle.dump(monomials, file)
