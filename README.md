@@ -6,6 +6,7 @@ This repository computes generators and relations of the rational cohomology of 
 > ``python recursion_formula.py``
 
 It is possible to pass a dimension and save path by adding ``--dimension d --save_path ./path-to/file.pkl``
+
 2. To compute minimal relations run
 > ``python compute_relations.py``
 
