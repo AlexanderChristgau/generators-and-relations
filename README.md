@@ -1,5 +1,5 @@
 ## Description
-This repository computes generators and relations of the rational cohomology of Hilbert schemes from *ArXiv link*. 
+This repository computes generators and relations of the rational cohomology of Hilbert schemes from https://arxiv.org/abs/2201.13353. 
 
 ## Run computations
 1. To compute all monomials in terms of basis elements run 
